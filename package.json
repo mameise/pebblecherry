@@ -1,8 +1,8 @@
 {
   "name": "supercherry",
   "author": "Bernd",
-  "version": "2.0.0",
-  "keywords": ["pebble-app", "slot", "supercherry", "game"],
+  "version": "3.0.0",
+  "keywords": ["pebble-app", "slot", "supercherry", "superlady", "game"],
   "private": true,
   "dependencies": {},
   "pebble": {
@@ -10,19 +10,9 @@
     "uuid": "5c600600-c0de-4b00-8a00-5c6000000600",
     "sdkVersion": "3",
     "enableMultiJS": false,
-    "targetPlatforms": [
-      "aplite",
-      "basalt",
-      "chalk",
-      "diorite",
-      "emery"
-    ],
-    "watchapp": {
-      "watchface": false
-    },
-    "resources": {
-      "media": []
-    },
+    "targetPlatforms": ["aplite", "basalt", "chalk", "diorite", "emery"],
+    "watchapp": { "watchface": false },
+    "resources": { "media": [] },
     "capabilities": []
   }
 }

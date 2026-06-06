@@ -1,78 +1,82 @@
-# Super Cherry — Pebble-Watchapp 🍒
+# Super Cherry / Super Lady — Pebble-Watchapp 🍒
 
-Originalgetreuer Nachbau des Schweizer Kult-Spielautomaten **Super Cherry**
-(Golden Games / Greentube-Novomatic) fuer die **Pebble Time 2 (emery)**,
-kompatibel mit basalt / chalk / diorite / aplite.
+Nachbau des Schweizer Kult-Spielautomaten **Super Cherry** (Golden Games),
+im Stil von **Super Lady** (Sonderspiele, Winterthur), fuer die
+**Pebble Time 2 (emery)** — kompatibel mit basalt / chalk / diorite / aplite.
 
-> Nur **Spielgeld** ("Credits"). Kein echtes Geld, kein Gluecksspiel.
+> Nur **Spielgeld** (Credits). Kein echtes Geld, kein Gluecksspiel.
 
-## Versionen 600 / 1000 / 2000 / 5000
+## Layout (wie Super Lady)
 
-Die Versionen unterscheiden sich nur im **Maximalgewinn**, die Spielmechanik
-ist identisch. Standard ist hier die **600er** (Max x600). Fuer eine andere
-Version beim Bauen einfach das Define setzen, z.B.:
-
-```c
-#define SC_VERSION_MAX 5000   // vor #include "sc_core.h", oder in package/wscript
+```
+ +--------------------------------------+
+ |        CR 50    FR 20.00             |  Guthaben-Display + Wallet
+ | CHRY     [  Pentagram  ]      MYST  |  Cherry-Leiter | Stern | Mystery
+ | MAX                            5x   |
+ | 100x        ( Stern )          3x   |
+ | 15x       5 Bonus-Felder       2x   |
+ | 10x                            0x   |
+ | 5x       +-----------+              |
+ |          | W1  W2  W3|  [STOP]      |  3 Walzen + STOPP-Lauflicht
+ |          +-----------+              |
+ |            SELECT: Spin             |  Statuszeile
+ +--------------------------------------+
 ```
 
-## Echte Mechanik
+## Features (alle verifiziert am Original)
 
-Anders als beim ersten Entwurf bildet diese Version die *tatsaechliche*
-Super-Cherry-Mechanik ab (quellenbestaetigt, u.a. jackpots.ch, pasino.ch,
-casino.ch):
+- **3 Walzen, 1 Gewinnlinie.** 3 gleiche = Gewinn. Kirsche: 1 (aussen) = x2, 2 = x4.
+- **STOPP-Lauflicht** nach jedem Spin: ein Licht wandert in fester Schleife
+  (L-oben to mitte to unten to mitte to M-mitte to R-mitte to STOP und zurueck),
+  wird mit der Zeit langsamer. Bei **STOP** druecken = Gewinn kassieren.
+  Kein Gewinn? Trotzdem Lauflicht — bei STOP gibt's 10% Einsatz zurueck.
+- **Hold / Step** (automatisch & zufaellig bei 2 gleichen), inkl. **Cherry Step** (x20).
+- **Star Feature / Pentagram** (3 Sterne): eines von 5 Bonusspielen leuchtet auf —
+  Fruit Stop, 2x Shuffle, 4x Shuffle, 10x, Cherry Collect.
+- **Cherry Collect** (Leiter links): 7/10/15 Steps, je 3 Kirschen eine Stufe hoeher:
+  x5, x10, x15, x100, xMAX. Bei Step-Ende erreichte Stufe ausgezahlt.
+- **Cherry Pot**: sammelt sichtbare Kirschen ueber Runden.
+- **Gamble — MEHRFACH** (rechts, Mystery-Ausspielung): nach jedem Gewinn
+  **Gamble 2x** (verdoppeln/alles weg) oder **Gamble Mystery** (x0/x2/x3/x5).
+  Nach erfolgreichem Gamble erneut waehlbar — beliebig oft bis genommen,
+  verloren oder Versions-Cap (x600).
+- **Wallet + Persistenz** (wie Bally 493): Muenzspeicher bleibt im Automaten,
+  persistent ueber App-Schliessen. Auszahlen, Einwerfen, und **Auto-Aufladen**
+  der Wallet wenn sie unter CHF 1.- faellt.
 
-- **3 Walzen, 1 Gewinnlinie** (Mitte), 3×3 sichtbar.
-- **Gewinn bei 3 gleichen Symbolen** auf der Linie.
-- **Kirschen-Sonderregel:** 1 Kirsche (links/rechts) zahlt x2, 2 Kirschen x4.
-- **Hold ODER Step — automatisch & zufaellig:** Bei genau **2 gleichen**
-  auf der Linie loest der Automat selbst *zufaellig* eines der beiden aus
-  (keine Spielerentscheidung — das ist der Kern der echten Mechanik):
-  - **Hold:** die dritte Walze dreht per Re-Spin neu.
-  - **Step:** die dritte Walze rueckt schrittweise weiter, bis sie trifft
-    oder die Schritte aufgebraucht sind.
-- **Cherry Step:** taucht im Step eine Kirsche auf (und die anderen Symbole
-  sind weder BAR noch Glocke), formen die Walzen automatisch 3 Kirschen → x20.
-- **Star Feature:** 3 Sterne sichtbar → eines von 5 Bonusspielen
-  (Fruit Stop, 2x Shuffle, 4x Shuffle, 10x, Cherry Collect).
-  3 Sterne direkt auf der Linie geben zusaetzlich x100.
-- **Gamble nach JEDEM Gewinn** (drei echte Optionen, wie am Original):
-  - **Gamble 2x:** verdoppeln — oder alles weg (50/50).
-  - **Gamble Mystery:** zufaelliger Multiplikator x0, x2, x3 oder x5.
-  - **Gamble Split:** Haelfte sichern, andere Haelfte bei 2x riskieren.
-  - Bis zu 10 Gamble-Runden, gedeckelt auf das Versions-Maximum.
+## Steuerung (3 Tasten, kontextabhaengig)
 
-### Gewinntabelle (3 gleiche × Einsatz)
+| Phase            | UP                  | SELECT            | DOWN            |
+|------------------|---------------------|-------------------|-----------------|
+| Bereit           | Muenze einwerfen *  | **Spin**          | Einsatz +1      |
+|                  | (UP lang = Auszahlen)|                  |                 |
+| STOPP-Lauflicht  | –                   | **Stoppen**       | –               |
+| Gewinn/Gamble    | Gamble 2x           | Gewinn nehmen     | Gamble Mystery  |
+| 2x aufdecken     | linkes Feld         | –                 | rechtes Feld    |
+| Star Feature     | –                   | Pentagram/Bonus   | –               |
+| Cherry Collect   | (laeuft automatisch)| –                 | –               |
 
-| Symbol  | Faktor | Symbol  | Faktor |
-|---------|--------|---------|--------|
-| BAR     | x500   | Melone  | x10    |
-| Stern   | x100   | Pflaume | x10    |
-| Glocke  | x50    | Orange  | x5     |
-| Kirsche | x20    | Zitrone | x5     |
-|         |        | Birne   | x2     |
-|         |        | Traube  | x2     |
+\* Wenn die Wallet unter CHF 1.- ist, laedt UP die Wallet auf (+20.-).
+   Sonst wirft UP eine Muenze ein (CHF 1.- aus Wallet -> 10 Credits).
 
-Kirsche einzeln (aussen): x2 · 2 Kirschen: x4
+## Gewinntabelle (3 gleiche × Einsatz)
 
-## Steuerung (3-Tasten-Schema, an PiTama angelehnt)
-
-| Phase        | UP                | SELECT          | DOWN              |
-|--------------|-------------------|-----------------|-------------------|
-| Bereit       | —                 | **Spin**        | Einsatz +1        |
-| (Hold/Step laufen automatisch ab — keine Eingabe noetig)               |
-| Gewinn/Gamble| Gamble 2x         | Gewinn nehmen   | Gamble Mystery    |
-|              | (UP lang = Split) |                 |                   |
-| 2x aufdecken | linkes Feld       | —               | rechtes Feld      |
-| Star Feature | —                 | Bonus spielen   | —                 |
+| Symbol | Faktor | Symbol  | Faktor |
+|--------|--------|---------|--------|
+| BAR    | x500   | Melone  | x10    |
+| Stern  | x100   | Pflaume | x10    |
+| Glocke | x50    | Orange  | x5     |
+| Kirsche| x20    | Zitrone | x5     |
+|        |        | Birne   | x2     |
+|        |        | Traube  | x2     |
 
 ## Bauen
 
 ### CloudPebble (am einfachsten)
 
-1. <https://cloudpebble.repebble.com> → neues C-Projekt
-2. `sc_core.h/.c`, `sc_symbols.h/.c`, `main.c` einfuegen
-3. Plattform **emery** waehlen → Run in Emulator / auf die Uhr installieren
+1. <https://cloudpebble.repebble.com> -> neues C-Projekt
+2. Diese Dateien einfuegen: `sc_core.h/.c`, `sc_symbols.h/.c`, `main.c`
+3. Plattform **emery** -> Run in Emulator / auf die Uhr
 
 ### Lokales SDK
 
@@ -83,6 +87,15 @@ pebble build
 pebble install --emulator emery
 ```
 
+## Version einstellen (600/1000/2000/5000)
+
+Standard ist die **600er** (Max x600). Fuer andere Versionen vor dem Bauen
+in `sc_core.h` setzen, z.B.:
+
+```c
+#define SC_VERSION_MAX 5000
+```
+
 ## Projektstruktur
 
 ```
@@ -90,25 +103,22 @@ supercherry/
 ├── package.json
 ├── README.md
 └── src/c/
-    ├── sc_core.h / sc_core.c     # echte Spiellogik (plattformunabhaengig)
-    ├── sc_symbols.h / sc_symbols.c  # gezeichnete Symbole (GPath/Primitive)
-    └── main.c                    # Pebble-UI, Phasen, Animationen, Buttons
+    ├── sc_core.h / sc_core.c       # Spiellogik (plattformunabhaengig)
+    ├── sc_symbols.h / sc_symbols.c # gezeichnete Symbole
+    └── main.c                      # UI, Layout, Phasen, Persistenz
 ```
 
-## Symbole
+## Spielstand zuruecksetzen
 
-Alle Symbole sind als Vektorgrafik direkt gezeichnet (kein PNG-Resource noetig):
-Kirsche (zwei Beeren + Blatt), Glocke, blaues BAR-Schild, gelber 5-Zacken-Stern
-(GPath), Traubencluster, Melone (rotes Innenleben), sowie Birne (eifoermig) und
-die runden Fruechte Zitrone/Orange/Pflaume mit Blattstiel und Glanzpunkt.
+App deinstallieren und neu installieren — persistent storage wird geloescht.
 
 ## Portierung auf den RPi-Tamagotchi
 
-`sc_core.h/.c` ist komplett Pebble-frei und 1:1 nach Python portierbar
-(gleiche Funktionsnamen, gleicher Zustand). Fuer den Pi (ST7789 240×240,
-3 Buttons, Piezo) wird nur ein neues Frontend gebraucht — analog zum
-Bally-493-Core in PiTama.
+`sc_core.h/.c` ist komplett Pebble-frei und 1:1 nach Python portierbar.
+Fuer den Pi (ST7789 240x240, 3 Buttons, Piezo) wird nur ein neues Frontend
+gebraucht — analog zum Bally-493-Core in PiTama. Das 240x240-Display passt
+sogar besser zum dichten Super-Lady-Layout als die Pebble.
 
 ---
-🍒 Hinweis: Gluecksspiel kann suechtig machen. Dies ist ein nostalgischer
-Spielgeld-Nachbau ohne echten Geldeinsatz. Bei Problemen: SOS Spielsucht 0800 040 080.
+🍒 Gluecksspiel kann suechtig machen. Dies ist ein nostalgischer Spielgeld-
+Nachbau ohne echten Geldeinsatz. Hilfe: SOS Spielsucht 0800 040 080.
