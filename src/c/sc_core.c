@@ -43,14 +43,16 @@ int32_t sc_payout_three(Symbol s) {
     }
 }
 
-/* --- STOPP-Lauflicht Pfad (16 Stationen, Schleife) ------------------- *
- * L-oben, L-mitte, L-unten, L-mitte, M-mitte, R-mitte, STOP,
- * R-mitte, M-mitte, L-mitte, L-oben, L-mitte, L-unten, L-mitte, M-mitte, R-mitte
- * Danach wieder von vorn (Index 6 = STOP).
+/* --- STOPP-Lauflicht Pfad (10 Stationen, nahtloses Pendel) ----------- *
+ * Position als (reel, row): reel 0..2, row 0=oben 1=mitte 2=unten.
+ * STOP ist Sonderstation (reel=3). Das Licht pendelt nahtlos:
+ * STOP -> R-mitte -> M-mitte -> L-mitte -> L-oben -> L-mitte -> L-unten ->
+ * L-mitte -> M-mitte -> R-mitte -> (zurueck zu STOP). Jeder Schritt ist ein
+ * echter Nachbarschritt, der Schleifen-Uebergang (R-mitte -> STOP) ebenso.
  */
 static const RLStation RL_PATH[RL_PATH_LEN] = {
-    {0,0}, {0,1}, {0,2}, {0,1}, {1,1}, {2,1}, {RL_STOP_REEL,1},
-    {2,1}, {1,1}, {0,1}, {0,0}, {0,1}, {0,2}, {0,1}, {1,1}, {2,1}
+    {RL_STOP_REEL,1}, {2,1}, {1,1}, {0,1}, {0,0},
+    {0,1}, {0,2}, {0,1}, {1,1}, {2,1}
 };
 
 /* --- Hilfen ---------------------------------------------------------- */
@@ -225,7 +227,7 @@ bool sc_step_advance(SCGame *g) {
 
 /* --- STOPP-Lauflicht ------------------------------------------------- */
 void sc_runlight_start(SCGame *g) {
-    g->rl_index    = 0;
+    g->rl_index    = 4;   /* L-oben: weit weg von STOP, Licht laeuft erst hin */
     g->rl_ticks    = 0;
     g->rl_won_spin = (g->pending_win > 0);
     g->phase       = PHASE_RUNLIGHT;
@@ -255,8 +257,19 @@ void sc_runlight_station(const SCGame *g, int *reel, int *row) {
 
 void sc_runlight_press(SCGame *g) {
     if (g->phase != PHASE_RUNLIGHT) return;
-    if (!sc_runlight_at_stop(g)) return;  /* daneben -> nichts kassieren */
 
+    if (!sc_runlight_at_stop(g)) {
+        /* Daneben gedrueckt: Lauflicht endet, Gewinn verfaellt komplett.
+         * Auch ein anstehendes Star-Feature ist damit verloren. */
+        g->pending_win  = 0;
+        g->last_win     = 0;
+        g->can_gamble   = false;
+        g->star_pending = false;
+        g->phase        = PHASE_IDLE;
+        return;
+    }
+
+    /* Auf STOP getroffen. */
     if (g->rl_won_spin) {
         /* voller Gewinn: jetzt kassierbar -> Gamble anbieten */
         g->last_win   = g->pending_win;

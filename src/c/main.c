@@ -485,6 +485,11 @@ static void select_click(ClickRecognizerRef rec, void *ctx){
                 else set_status("Trostbetrag");
                 if (s_game.phase==PHASE_STAR) star_resolve();
                 save_game();
+            } else {
+                /* daneben: Gewinn verfallen */
+                set_status("Verpasst - leider nichts");
+                vibes_double_pulse();
+                save_game();
             }
             break;
         }

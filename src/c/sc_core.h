@@ -105,8 +105,8 @@ typedef enum {
 #define RL_STOP_REEL  3
 typedef struct { int8_t reel; int8_t row; } RLStation;
 
-/* Voller Schleifenpfad (Hin- und Rueckweg), siehe sc_core.c. */
-#define RL_PATH_LEN  16
+/* Voller Schleifenpfad (nahtloses Pendel), siehe sc_core.c. */
+#define RL_PATH_LEN  10
 
 /* --- Konstanten ------------------------------------------------------ */
 #define SC_REELS          3
