@@ -1,0 +1,31 @@
+{
+  "name": "supercherry600",
+  "author": "Bernd",
+  "version": "1.0.0",
+  "keywords": ["pebble-app", "slot", "supercherry", "game"],
+  "private": true,
+  "dependencies": {},
+  "pebble": {
+    "displayName": "Super Cherry 600",
+    "uuid": "5c600600-c0de-4b00-8a00-5c6000000600",
+    "sdkVersion": "3",
+    "enableMultiJS": true,
+    "targetPlatforms": [
+      "aplite",
+      "basalt",
+      "chalk",
+      "diorite",
+      "emery"
+    ],
+    "watchapp": {
+      "watchface": false
+    },
+    "messageKeys": [
+      "DUMMY"
+    ],
+    "resources": {
+      "media": []
+    },
+    "capabilities": []
+  }
+}
